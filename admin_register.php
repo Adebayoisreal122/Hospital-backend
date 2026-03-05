@@ -2,26 +2,22 @@
 // admin_register.php
 session_start();
 
-// CORS Headers - Add these at the very beginning
 header('Access-Control-Allow-Origin: http://localhost:4200');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
-// Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-require_once "config.php"; // Only DB connection, NO admin_auth.php
+require_once "config.php"; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get JSON input (Axios sends JSON by default)
     $input = json_decode(file_get_contents('php://input'), true);
     
-    // Fallback to $_POST if JSON parsing fails
     $name = $input['name'] ?? $_POST['name'] ?? '';
     $email = $input['email'] ?? $_POST['email'] ?? '';
     $password = $input['password'] ?? $_POST['password'] ?? '';
@@ -31,21 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    // Optional: Check if this is the first admin (for security)
     $checkStmt = $conn->prepare("SELECT COUNT(*) as count FROM admins");
     $checkStmt->execute();
     $result = $checkStmt->get_result();
     $adminCount = $result->fetch_assoc()['count'];
 
-    // Comment out this check if you want to allow multiple admins
-    /*
-    if ($adminCount > 0) {
-        echo json_encode(["status"=>false,"message"=>"Admin registration is disabled. Admins already exist.","data"=>null]);
-        exit;
-    }
-    */
-
-    // Check if email already exists
+  
     $emailCheckStmt = $conn->prepare("SELECT id FROM admins WHERE email = ?");
     $emailCheckStmt->bind_param("s", $email);
     $emailCheckStmt->execute();
@@ -56,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    // Hash password and insert
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
     $stmt = $conn->prepare("INSERT INTO admins (name, email, password, role) VALUES (?, ?, ?, ?)");
     $role = "admin";

@@ -5,7 +5,6 @@ require_once __DIR__ . "/vendor/autoload.php";
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Require admin
 $info = require_admin($conn);
 
 // Get doctor email
@@ -19,16 +18,13 @@ if (!$email) {
 // Generate a token
 $token = bin2hex(random_bytes(16));
 
-// Save invite in database
 $stmt = $conn->prepare("INSERT INTO doctor_invitations (email, token, invited_by) VALUES (?, ?, ?)");
 $stmt->bind_param("ssi", $email, $token, $info['user_id']);
 $stmt->execute();
 
-// Create acceptance link using environment variable
 $frontendUrl = getenv('FRONTEND_URL') ?: 'http://localhost:4200';
 $link = $frontendUrl . "/accept-invitation?token=" . urlencode($token);
 
-// Send email
 $mail = new PHPMailer(true);
 try {
     $mail->isSMTP();

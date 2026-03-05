@@ -1,9 +1,6 @@
 <?php
 require_once __DIR__ . '/helpers.php';
 
-// This endpoint can be public or require authentication
-// For now, making it public so patients can browse doctors
-
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {

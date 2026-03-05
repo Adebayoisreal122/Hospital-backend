@@ -2,7 +2,6 @@
 session_start();
 require_once __DIR__ . '/helpers.php';
 
-// Check if doctor is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
     $token = null;
     $headers = getallheaders();
@@ -27,7 +26,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Get total unique patients
     $stmt = $conn->prepare("
         SELECT COUNT(DISTINCT patient_id) as total_patients
         FROM appointments
@@ -37,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute();
     $totalPatients = $stmt->get_result()->fetch_assoc()['total_patients'];
     
-    // Get upcoming appointments (confirmed, today or future)
     $stmt = $conn->prepare("
         SELECT COUNT(*) as upcoming
         FROM appointments
@@ -49,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute();
     $upcomingAppointments = $stmt->get_result()->fetch_assoc()['upcoming'];
     
-    // Get completed consultations
     $stmt = $conn->prepare("
         SELECT COUNT(*) as completed
         FROM appointments
@@ -60,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute();
     $completedConsultations = $stmt->get_result()->fetch_assoc()['completed'];
     
-    // Get pending appointments
     $stmt = $conn->prepare("
         SELECT COUNT(*) as pending
         FROM appointments

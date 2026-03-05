@@ -1,23 +1,17 @@
 <?php
-/**
- * Create a new invoice for a completed appointment
- * Admin access only
- */
+
 require_once __DIR__ . '/helpers.php';
 
-// Require admin authentication
 $info = require_admin($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Get input data
         $input = json_decode(file_get_contents('php://input'), true);
         
         $appointmentId = $input['appointment_id'] ?? 0;
         $amount = $input['amount'] ?? 0;
         $notes = $input['notes'] ?? '';
         
-        // Validation
         if (!$appointmentId) {
             json_response(false, "Appointment ID is required");
         }
@@ -42,12 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $appointment = $result->fetch_assoc();
         
-        // Check if appointment is completed
         if ($appointment['status'] !== 'completed') {
             json_response(false, "Only completed appointments can have invoices");
         }
         
-        // Check if invoice already exists for this appointment
         $stmt = $conn->prepare("SELECT id FROM invoices WHERE appointment_id = ?");
         $stmt->bind_param("i", $appointmentId);
         $stmt->execute();
@@ -56,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             json_response(false, "Invoice already exists for this appointment");
         }
         
-        // Create invoice
         $stmt = $conn->prepare("
             INSERT INTO invoices 
             (appointment_id, patient_id, doctor_id, amount, notes, status, created_at)

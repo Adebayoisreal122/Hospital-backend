@@ -4,7 +4,6 @@ require_once __DIR__ . '/helpers.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     
-    // Get form data
     $name = $input['name'] ?? '';
     $email = $input['email'] ?? '';
     $phone = $input['phone'] ?? '';
@@ -13,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = $input['address'] ?? '';
     $password = $input['password'] ?? '';
 
-    // Validation
     if (empty($name) || empty($email) || empty($phone) || empty($password) || empty($gender)) {
         json_response(false, "All required fields must be filled");
     }
@@ -26,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Password must be at least 6 characters");
     }
 
-    // Check if email already exists
     $stmt = $conn->prepare("SELECT id FROM patients WHERE email = ? LIMIT 1");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -36,10 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Email already registered");
     }
 
-    // Hash password
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-    // Insert patient
     $stmt = $conn->prepare("INSERT INTO patients (name, email, phone, date_of_birth, gender, address, password) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("sssssss", $name, $email, $phone, $date_of_birth, $gender, $address, $hashed_password);
 

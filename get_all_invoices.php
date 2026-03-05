@@ -1,16 +1,11 @@
 <?php
-/**
- * Get all invoices with patient and doctor information
- * Admin access only
- */
+
 require_once __DIR__ . '/helpers.php';
 
-// Require admin authentication
 $info = require_admin($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        // Get all invoices with related information
         $query = "
             SELECT 
                 i.id,

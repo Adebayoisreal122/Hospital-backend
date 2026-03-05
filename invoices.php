@@ -3,7 +3,6 @@ header("Content-Type: application/json");
 include "config.php";
 include "auth_check.php";
 
-// Only Admins can create invoices, Doctors can see invoices for their patients, Patients can see their own invoices
 require_role(['admin','doctor','patient']);
 
 $method = $_SERVER['REQUEST_METHOD'];

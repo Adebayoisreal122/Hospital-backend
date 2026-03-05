@@ -2,21 +2,15 @@
 require_once __DIR__ . "/helpers.php";
 require_once __DIR__ . "/mailer.php";
 
-// Get the action and method
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? null;
 
-// ✅ Define actions that DON'T require admin authentication
 $publicActions = ['accept-invite', 'complete-invite'];
 
-// Only require admin authentication for non-public actions
 if (!in_array($action, $publicActions)) {
     $info = require_admin($conn);
 }
 
-// ============================================
-// ADMIN ONLY: Invite Doctor
-// ============================================
 if ($method == 'POST' && $action === 'invite-doctor') {
     $input = json_decode(file_get_contents("php://input"), true);
     $email = $input['email'] ?? null;
@@ -25,15 +19,12 @@ if ($method == 'POST' && $action === 'invite-doctor') {
         json_response(false, "Doctor email is required");
     }
 
-    // Generate a secure token
     $token = bin2hex(random_bytes(16));
 
-    // Store the invitation
     $stmt = $conn->prepare("INSERT INTO doctor_invitations (email, token, invited_by) VALUES (?, ?, ?)");
     $stmt->bind_param("ssi", $email, $token, $info['user_id']);
     
     if ($stmt->execute()) {
-        // Send email with link
         $frontendUrl = getenv('FRONTEND_URL') ?: 'http://localhost:4200';
         $inviteLink = $frontendUrl . "/accept-invitation?token=" . urlencode($token);
         
@@ -60,9 +51,7 @@ if ($method == 'POST' && $action === 'invite-doctor') {
     }
 }
 
-// ============================================
-// PUBLIC: Validate Invitation Token
-// ============================================
+
 if ($method == 'GET' && $action === 'accept-invite') {
     $token = $_GET['token'] ?? null;
     
@@ -83,9 +72,7 @@ if ($method == 'GET' && $action === 'accept-invite') {
     }
 }
 
-// ============================================
-// PUBLIC: Complete Doctor Registration
-// ============================================
+
 if ($method == 'POST' && $action === 'complete-invite') {
     $input = json_decode(file_get_contents("php://input"), true);
     $token = $input['token'] ?? null;
@@ -98,7 +85,6 @@ if ($method == 'POST' && $action === 'complete-invite') {
         json_response(false, "All fields are required");
     }
 
-    // Check token and get invited_by
     $stmt = $conn->prepare("SELECT email, invited_by FROM doctor_invitations WHERE token = ? AND status = 'pending'");
     $stmt->bind_param("s", $token);
     $stmt->execute();
@@ -109,16 +95,14 @@ if ($method == 'POST' && $action === 'complete-invite') {
         json_response(false, "Invalid or expired invitation token");
     }
 
-    // Create doctor account
     $email = $invite['email'];
     $hashed = password_hash($password, PASSWORD_BCRYPT);
-    $createdBy = $invite['invited_by']; // Get from invitation record
+    $createdBy = $invite['invited_by']; 
 
     $stmt = $conn->prepare("INSERT INTO doctors (name, specialization, email, phone, password, created_by) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("sssssi", $name, $specialization, $email, $phone, $hashed, $createdBy);
 
     if ($stmt->execute()) {
-        // Mark invitation as accepted (using prepared statement to prevent SQL injection)
         $updateStmt = $conn->prepare("UPDATE doctor_invitations SET status = 'accepted' WHERE token = ?");
         $updateStmt->bind_param("s", $token);
         $updateStmt->execute();
@@ -129,9 +113,7 @@ if ($method == 'POST' && $action === 'complete-invite') {
     }
 }
 
-// ============================================
-// ADMIN ONLY: Dashboard Overview
-// ============================================
+
 if ($method == 'GET' && !$action) {
     $counts = [];
     $r = $conn->query("SELECT COUNT(*) AS c FROM doctors")->fetch_assoc(); 

@@ -11,7 +11,6 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
-// Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -20,12 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 include "config.php";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get input data
     $input = json_decode(file_get_contents('php://input'), true);
     
     $email = $input['email'] ?? '';
     $password = $input['password'] ?? '';
-    $role = $input['role'] ?? ''; // Get the role from request
+    $role = $input['role'] ?? ''; 
 
     // Debug logging
     error_log("Login attempt - Email: $email, Role: $role");

@@ -1,27 +1,21 @@
 <?php
 require_once __DIR__ . '/helpers.php';
 
-// Require admin authentication
 $info = require_admin($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Get total doctors
     $stmt = $conn->query("SELECT COUNT(*) as total FROM doctors");
     $totalDoctors = $stmt->fetch_assoc()['total'];
     
-    // Get total patients
     $stmt = $conn->query("SELECT COUNT(*) as total FROM patients");
     $totalPatients = $stmt->fetch_assoc()['total'];
     
-    // Get total appointments
     $stmt = $conn->query("SELECT COUNT(*) as total FROM appointments");
     $totalAppointments = $stmt->fetch_assoc()['total'];
     
-    // Get pending appointments
     $stmt = $conn->query("SELECT COUNT(*) as total FROM appointments WHERE status = 'pending'");
     $pendingAppointments = $stmt->fetch_assoc()['total'];
     
-    // Get recent appointments (last 10)
     $stmt = $conn->query("
         SELECT 
             a.id,

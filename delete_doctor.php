@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/helpers.php';
 
-// Require admin authentication
 $info = require_admin($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -12,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Doctor ID is required");
     }
     
-    // Check if doctor exists
     $stmt = $conn->prepare("SELECT id FROM doctors WHERE id = ?");
     $stmt->bind_param("i", $doctorId);
     $stmt->execute();
@@ -30,17 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("i", $doctorId);
     $stmt->execute();
     
-    // Delete doctor schedules
     $stmt = $conn->prepare("DELETE FROM doctor_schedules WHERE doctor_id = ?");
     $stmt->bind_param("i", $doctorId);
     $stmt->execute();
     
-    // Delete auth tokens
     $stmt = $conn->prepare("DELETE FROM auth_tokens WHERE user_type = 'doctor' AND user_id = ?");
     $stmt->bind_param("i", $doctorId);
     $stmt->execute();
     
-    // Delete doctor
     $stmt = $conn->prepare("DELETE FROM doctors WHERE id = ?");
     $stmt->bind_param("i", $doctorId);
     

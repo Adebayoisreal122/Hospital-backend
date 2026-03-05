@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Patient not found");
     }
     
-    // Cancel all future appointments
     $stmt = $conn->prepare("
         UPDATE appointments 
         SET status = 'cancelled' 
@@ -30,12 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("i", $patientId);
     $stmt->execute();
     
-    // Delete auth tokens
     $stmt = $conn->prepare("DELETE FROM auth_tokens WHERE user_type = 'patient' AND user_id = ?");
     $stmt->bind_param("i", $patientId);
     $stmt->execute();
     
-    // Delete patient
     $stmt = $conn->prepare("DELETE FROM patients WHERE id = ?");
     $stmt->bind_param("i", $patientId);
     

@@ -37,12 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $appointmentTime = $input['appointment_time'] ?? '';
     $reason = $input['reason'] ?? 'General consultation';
     
-    // Validation
     if (!$doctorId || !$appointmentDate || !$appointmentTime) {
         json_response(false, "All fields are required");
     }
     
-    // Check if doctor exists
     $stmt = $conn->prepare("SELECT id FROM doctors WHERE id = ?");
     $stmt->bind_param("i", $doctorId);
     $stmt->execute();
@@ -50,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Invalid doctor selected");
     }
     
-    // Check if appointment slot is available
     $stmt = $conn->prepare("
         SELECT id FROM appointments 
         WHERE doctor_id = ? AND appointment_date = ? AND appointment_time = ? 
@@ -63,8 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "This time slot is already booked. Please choose another time.");
     }
     
-    // Create appointment
-    $status = 'pending'; // Admin/Doctor will confirm
+    $status = 'pending'; 
     $stmt = $conn->prepare("
         INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason, status, created_at)
         VALUES (?, ?, ?, ?, ?, ?, NOW())

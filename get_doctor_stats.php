@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         json_response(false, "Doctor ID is required");
     }
     
-    // Get total unique patients
     $stmt = $conn->prepare("
         SELECT COUNT(DISTINCT patient_id) as total_patients
         FROM appointments
@@ -21,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute();
     $totalPatients = $stmt->get_result()->fetch_assoc()['total_patients'];
     
-    // Get total appointments
     $stmt = $conn->prepare("
         SELECT COUNT(*) as total_appointments
         FROM appointments
@@ -31,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute();
     $totalAppointments = $stmt->get_result()->fetch_assoc()['total_appointments'];
     
-    // Get pending appointments
     $stmt = $conn->prepare("
         SELECT COUNT(*) as pending
         FROM appointments
@@ -41,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt->execute();
     $pendingAppointments = $stmt->get_result()->fetch_assoc()['pending'];
     
-    // Get completed appointments
     $stmt = $conn->prepare("
         SELECT COUNT(*) as completed
         FROM appointments

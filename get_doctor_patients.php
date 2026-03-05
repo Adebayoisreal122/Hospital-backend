@@ -27,7 +27,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Get all unique patients who have appointments with this doctor
     $stmt = $conn->prepare("
         SELECT DISTINCT
             p.id as patient_id,

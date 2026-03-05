@@ -2,7 +2,6 @@
 session_start();
 require_once __DIR__ . '/helpers.php';
 
-// Check if doctor is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
     $token = null;
     $headers = getallheaders();
@@ -34,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Schedule ID is required");
     }
     
-    // Verify schedule belongs to this doctor
     $stmt = $conn->prepare("SELECT id FROM doctor_schedules WHERE id = ? AND doctor_id = ?");
     $stmt->bind_param("ii", $scheduleId, $doctorId);
     $stmt->execute();
@@ -43,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Schedule not found");
     }
     
-    // Delete schedule
     $stmt = $conn->prepare("DELETE FROM doctor_schedules WHERE id = ?");
     $stmt->bind_param("i", $scheduleId);
     

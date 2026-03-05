@@ -3,13 +3,11 @@ header("Content-Type: application/json");
 include "config.php";
 include "auth_check.php";
 
-// Admin: full control, Doctors: see their appointments, Patients: see their own
 require_role(['admin','doctor','patient']);
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'POST' && $_SESSION['role'] === 'admin') {
-    // Admin schedules appointment
     $input = json_decode(file_get_contents("php://input"), true);
     $patientId = $input['patient_id'] ?? null;
     $doctorId = $input['doctor_id'] ?? null;

@@ -1,17 +1,11 @@
 <?php
-/**
- * Get completed appointments that don't have invoices yet
- * Used when creating new invoices
- * Admin access only
- */
+
 require_once __DIR__ . '/helpers.php';
 
-// Require admin authentication
 $info = require_admin($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        // Get completed appointments without invoices
         $query = "
             SELECT 
                 a.id,

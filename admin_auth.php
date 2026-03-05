@@ -8,9 +8,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit;
 }
 
-require_once "config.php"; // DB connection
+require_once "config.php"; 
 
-// get the admin info for reference
 $stmt = $conn->prepare("SELECT id, name, email, role FROM admins WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['admin_id']);
 $stmt->execute();
@@ -24,4 +23,3 @@ if (!$admin) {
     exit;
 }
 
-// now $admin is available for all files

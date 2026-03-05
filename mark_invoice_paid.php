@@ -45,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             json_response(false, "Cannot mark a cancelled invoice as paid");
         }
         
-        // Update invoice status
         $stmt = $conn->prepare("
             UPDATE invoices 
             SET status = 'paid', 

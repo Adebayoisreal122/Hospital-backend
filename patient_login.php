@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $res = $stmt->get_result();
 
     if ($row = $res->fetch_assoc()) {
-        // Patients may not always need a password, so check if stored
         if ($row['password'] && password_verify($password, $row['password'])) {
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['role'] = 'patient';

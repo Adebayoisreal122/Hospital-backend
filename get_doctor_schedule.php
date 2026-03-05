@@ -2,7 +2,6 @@
 session_start();
 require_once __DIR__ . '/helpers.php';
 
-// Check if doctor is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
     $token = null;
     $headers = getallheaders();

@@ -27,7 +27,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Get all appointments for this doctor
     $stmt = $conn->prepare("
         SELECT 
             a.id,

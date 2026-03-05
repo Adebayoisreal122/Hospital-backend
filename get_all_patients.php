@@ -1,11 +1,9 @@
 <?php
 require_once __DIR__ . '/helpers.php';
 
-// Require admin authentication
 $info = require_admin($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Get all patients
     $stmt = $conn->query("
         SELECT 
             id,

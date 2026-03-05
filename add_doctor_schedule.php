@@ -2,7 +2,6 @@
 session_start();
 require_once __DIR__ . '/helpers.php';
 
-// Check if doctor is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'doctor') {
     $token = null;
     $headers = getallheaders();
@@ -34,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $endTime = $input['end_time'] ?? '';
     $isAvailable = $input['is_available'] ?? true;
     
-    // Validation
     if (empty($dayOfWeek) || empty($startTime) || empty($endTime)) {
         json_response(false, "All fields are required");
     }
@@ -44,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Invalid day of week");
     }
     
-    // Check if schedule already exists for this day
     $stmt = $conn->prepare("SELECT id FROM doctor_schedules WHERE doctor_id = ? AND day_of_week = ?");
     $stmt->bind_param("is", $doctorId, $dayOfWeek);
     $stmt->execute();
@@ -53,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Schedule for this day already exists");
     }
     
-    // Add schedule
     $stmt = $conn->prepare("
         INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, is_available)
         VALUES (?, ?, ?, ?, ?)

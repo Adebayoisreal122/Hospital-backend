@@ -1,17 +1,16 @@
 <?php
-// helpers.php
+
 require_once __DIR__ . '/config.php';
 
 header("Content-Type: application/json");
 
-// CORS Configuration - Fixed for credentials
+// CORS Configuration 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? 'http://localhost:4200';
 $allowedOrigins = [
     'http://localhost:4200',
-    'http://localhost:4201', // Add other origins if needed
+    'http://localhost:4201', 
 ];
 
-// Set specific origin instead of wildcard when using credentials
 if (in_array($origin, $allowedOrigins)) {
     header("Access-Control-Allow-Origin: $origin");
 } else {
@@ -23,7 +22,6 @@ header("Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-W
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Max-Age: 3600");
 
-// Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -34,7 +32,6 @@ function json_response($status, $message, $data = null) {
     exit;
 }
 
-// create token and store in table
 function issue_token($conn, $user_type, $user_id, $ttl_seconds = 86400) {
     $token = bin2hex(random_bytes(32));
     $expires_at = date('Y-m-d H:i:s', time() + $ttl_seconds);
@@ -45,7 +42,6 @@ function issue_token($conn, $user_type, $user_id, $ttl_seconds = 86400) {
     return $token;
 }
 
-// validate token and return array: ['user_type'=>..., 'user_id'=>...]
 function validate_token($conn, $token) {
     if (!$token) return null;
     $stmt = $conn->prepare("SELECT user_type, user_id, expires_at FROM auth_tokens WHERE token = ? LIMIT 1");
@@ -55,7 +51,6 @@ function validate_token($conn, $token) {
     $stmt->close();
     if (!$res) return null;
     if ($res['expires_at'] && strtotime($res['expires_at']) < time()) {
-        // token expired - delete it
         $stmt = $conn->prepare("DELETE FROM auth_tokens WHERE token = ?");
         $stmt->bind_param("s", $token);
         $stmt->execute(); $stmt->close();
@@ -64,7 +59,6 @@ function validate_token($conn, $token) {
     return ["user_type" => $res['user_type'], "user_id" => (int)$res['user_id']];
 }
 
-// require admin role - will exit with JSON on failure
 function require_admin($conn) {
     $token = null;
     $headers = getallheaders();

@@ -2,7 +2,6 @@
 session_start();
 require_once __DIR__ . '/helpers.php';
 
-// Check if patient is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'patient') {
     $token = null;
     $headers = getallheaders();
@@ -34,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Appointment ID is required");
     }
     
-    // Verify appointment belongs to this patient
     $stmt = $conn->prepare("SELECT id, status FROM appointments WHERE id = ? AND patient_id = ?");
     $stmt->bind_param("ii", $appointmentId, $patientId);
     $stmt->execute();
@@ -54,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         json_response(false, "Cannot cancel a completed appointment");
     }
     
-    // Update appointment status
     $stmt = $conn->prepare("UPDATE appointments SET status = 'cancelled', updated_at = NOW() WHERE id = ?");
     $stmt->bind_param("i", $appointmentId);
     

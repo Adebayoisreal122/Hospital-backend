@@ -1,21 +1,17 @@
 <?php
-// doctor.php
 header("Content-Type: application/json");
 include "config.php";
 include "auth_check.php";
 
-// Admin and Doctor roles allowed here
 require_role(['admin','doctor']);
 
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     if ($_SESSION['role'] === 'admin') {
-        // Admin: view all doctors
         $res = $conn->query("SELECT id, name, specialization, email, phone, created_at FROM doctors");
         echo json_encode(["status"=>true,"doctors"=>$res->fetch_all(MYSQLI_ASSOC)]);
     } elseif ($_SESSION['role'] === 'doctor') {
-        // Doctor: view only their own profile
         $doctorId = $_SESSION['user_id'];
         $stmt = $conn->prepare("SELECT id, name, specialization, email, phone, created_at 
                                 FROM doctors WHERE id=?");
@@ -28,7 +24,6 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST' && $_SESSION['role'] === 'admin') {
-    // Admin: create new doctor
     $input = json_decode(file_get_contents("php://input"), true);
     $name = $input['name'] ?? null;
     $specialization = $input['specialization'] ?? null;
@@ -67,7 +62,6 @@ if ($method === 'PUT') {
     }
 
     if ($_SESSION['role'] === 'admin') {
-        // Admin: update any doctor
         $id = $_PUT['id'] ?? null;
         if (!$id) {
             echo json_encode(["status"=>false,"message"=>"Doctor ID required"]);
@@ -76,7 +70,6 @@ if ($method === 'PUT') {
         $stmt = $conn->prepare("UPDATE doctors SET name=?, specialization=?, email=?, phone=? WHERE id=?");
         $stmt->bind_param("ssssi", $name, $specialization, $email, $phone, $id);
     } elseif ($_SESSION['role'] === 'doctor') {
-        // Doctor: update their own profile
         $id = $_SESSION['user_id'];
         $stmt = $conn->prepare("UPDATE doctors SET name=?, specialization=?, email=?, phone=? WHERE id=?");
         $stmt->bind_param("ssssi", $name, $specialization, $email, $phone, $id);
@@ -91,7 +84,6 @@ if ($method === 'PUT') {
 }
 
 if ($method === 'DELETE' && $_SESSION['role'] === 'admin') {
-    // Only admin can delete doctors
     parse_str(file_get_contents("php://input"), $_DELETE);
     $id = $_DELETE['id'] ?? null;
 

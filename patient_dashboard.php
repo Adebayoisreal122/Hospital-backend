@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/helpers.php';
 
-// Verify patient is authenticated
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 $token = str_replace('Bearer ', '', $authHeader);
 
@@ -17,7 +16,6 @@ if (!$info || $info['user_type'] !== 'patient') {
 
 $patientId = $info['user_id'];
 
-// Get next appointment
 $nextAppointment = null;
 $stmt = $conn->prepare("
     SELECT a.id, a.appointment_date, a.appointment_time, d.name as doctor_name, d.specialization
@@ -40,7 +38,6 @@ if ($row = $result->fetch_assoc()) {
     ];
 }
 
-// Get upcoming appointments count
 $stmt = $conn->prepare("
     SELECT COUNT(*) as count 
     FROM appointments 
@@ -51,7 +48,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $upcomingCount = $result->fetch_assoc()['count'];
 
-// Get most frequently visited doctor (assigned doctor)
 $stmt = $conn->prepare("
     SELECT d.name, COUNT(*) as visit_count
     FROM appointments a
